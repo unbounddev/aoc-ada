@@ -136,6 +136,100 @@ package body AOC2024 is
 
          return safe_reports;
       end q1;
+
+      function q2 return natural is
+         package int_io renames ada.integer_text_io;
+         f : file_type;
+         file_name : constant string := "src/input/2024/d2q1.txt";
+         safe_reports : natural := 0;
+      begin
+         -- How many reports are safe?
+         -- Each line is a report
+           -- Are all increasing or decreasing?
+           -- Do all adjacent numbers only vary by 1-3?
+         -- Check if numbers should be increasing or decreasing based on first two numbers
+         -- If any number varies < 1 or > 3 then report fails 
+         open(f, in_file, file_name);
+         <<process_line>>
+         while not end_of_file(f) loop
+            declare
+               line : string := get_line(f);
+               last : natural := 0;
+               count : natural := 0;
+               ignore_num : integer := -1;
+               read : natural := 0;
+               error : boolean := false;
+               increasing : boolean := false;
+               decreasing : boolean := false;
+               unsafe : boolean := false;
+               prev_num : integer;
+               curr_num : integer;
+               null_num : integer;
+
+               procedure error_reset is
+               begin
+                  last := 0;
+                  count := 0;
+                  read := 0;
+                  ignore_num := ignore_num + 1;
+               end error_reset;
+            begin
+               <<process_num>>
+               while last < line'length loop
+                  if ignore_num = read then
+                     int_io.get(line(last+1..line'last), null_num, last);
+                     read := read + 1;
+                     goto process_num;
+                  end if;
+                  if count < 1 then
+                     int_io.get(line(last+1..line'last), prev_num, last);
+                     count := count + 1;
+                     read := read + 1;
+                     goto process_num;
+                  elsif count < 2 then
+                     int_io.get(line(last+1..line'last), curr_num, last);
+                     if prev_num <= curr_num then
+                        increasing := true;
+                        decreasing := false;
+                     else
+                        increasing := false;
+                        decreasing := true;
+                     end if;
+                  else
+                     prev_num := curr_num;
+                     int_io.get(line(last+1..line'last), curr_num, last);
+                  end if;
+                  count := count + 1;
+                  read := read + 1;
+
+                  if (prev_num <= curr_num and not increasing) or
+                     (prev_num > curr_num and not decreasing) then
+                     if read < ignore_num then
+                        goto end_process;
+                     end if;
+                     error_reset;
+                     goto process_num;
+                  end if;
+
+                  if abs(curr_num-prev_num) < 1 or abs(curr_num-prev_num) > 3 then
+                     if read < ignore_num then
+                        goto end_process;
+                     end if;
+                     error_reset;
+                     goto process_num;
+                  end if;
+                  
+               end loop;
+               <<end_process>>
+               if ignore_num < read then
+                  safe_reports := safe_reports + 1;
+               end if;
+            end;
+         end loop;
+         close(f);
+
+         return safe_reports;
+      end q2;
    end d2;
 
 end AOC2024;

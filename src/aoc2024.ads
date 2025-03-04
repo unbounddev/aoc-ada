@@ -19,9 +19,9 @@ package AOC2024 is
       function Q2 return Integer;
    end D1;
 
-   package D2 is
-      function Q1 return natural;
-      --  function Q2 return Integer;
-   end D2;
+   package d2 is
+      function q1 return natural;
+      function q2 return natural;
+   end d2;
 
 end AOC2024;
