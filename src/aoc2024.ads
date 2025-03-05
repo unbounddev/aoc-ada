@@ -24,4 +24,9 @@ package AOC2024 is
       function q2 return natural;
    end d2;
 
+   package d3 is
+      function q1 return natural;
+      --  function q2 return natural;
+   end d3;
+
 end AOC2024;
