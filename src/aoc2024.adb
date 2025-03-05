@@ -268,6 +268,46 @@ package body AOC2024 is
          end loop;
          return sum;
       end q1;
+
+      function q2 return natural is
+         f : file_type;
+         file_name : constant string := "src/input/2024/d3q1.txt";
+         sum : natural := 0;
+         first : integer;
+         second : integer;
+         last : positive;
+         match_last : positive := 1;
+         mul_enabled : boolean := true;
+      begin
+         open(f, in_file, file_name);
+         while not end_of_file(f) loop
+            declare
+               re : constant pattern_matcher := compile("do\(\)|don't\(\)|mul\(([0-9]+),([0-9]+)\)");
+               matches : match_array(0 .. 2);
+               line : string := get_line(f);
+            begin
+               <<process_match>>
+               match(re, line(match_last .. line'last), matches);
+               if matches(0) /= No_Match then
+                  if line(matches(0).first .. matches(0).last) = "do()" then
+                     mul_enabled := true;
+                  elsif line(matches(0).first .. matches(0).last) = "don't()" then
+                     mul_enabled := false;
+                  elsif mul_enabled then
+                     int_io.get(line(matches(1).first .. matches(1).last), first, last);
+                     int_io.get(line(matches(2).first .. matches(2).last), second, last);
+                     sum := sum + (first * second);
+                  end if;
+                  if matches(0).last < line'length then
+                     match_last := matches(0).last;
+                     goto process_match;
+                  end if;
+               end if;
+               match_last := 1;
+            end;
+         end loop;
+         return sum;
+      end q2;
    end d3;
 
 end AOC2024;
